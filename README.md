@@ -1,7 +1,8 @@
 # generator-framework7-phonegap [![Build Status](https://secure.travis-ci.org/arvindr21/generator-framework7-phonegap.png?branch=master)](https://travis-ci.org/arvindr21/generator-framework7-phonegap)
 
-> [Yeoman](http://yeoman.io) generator
+[![NPM](https://nodei.co/npm/generator-framework7-phonegap.png?downloads=true)](https://nodei.co/npm/generator-framework7-phonegap/)
 
+> A Yeoman Generator to Scaffold an [Framework7](http://www.idangero.us/framework7/) [PhongeGap](http://phonegap.com) app
 ## Getting Started
 
 ### What is Yeoman?
@@ -85,7 +86,7 @@ $ grunt
 ```
 to spin off a server. You can see the contents of _www_ folder in your browser at `http://localhost:1881`.
 
-__ * you will find cordova.js as a 404 resource during Framework7 dev as well as PhoneGap dev. This will be resolved during PhoneGap Build__
+__you will find cordova.js as a 404 resource during Framework7 dev as well as PhoneGap dev. This will be resolved during PhoneGap Build__
 
 ### Run on an Emulator
 
