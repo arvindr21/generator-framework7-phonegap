@@ -3,6 +3,7 @@
 [![NPM](https://nodei.co/npm/generator-framework7-phonegap.png?downloads=true)](https://nodei.co/npm/generator-framework7-phonegap/)
 
 > A Yeoman Generator to Scaffold an [Framework7](http://www.idangero.us/framework7/) [PhongeGap](http://phonegap.com) app
+
 ## Getting Started
 
 ### What is Yeoman?
