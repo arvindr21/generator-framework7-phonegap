@@ -20,7 +20,9 @@
     "app"
   ],
   "keywords": [
-    "yeoman-generator"
+    "yeoman-generator",
+    "framwork7",
+    "phonegap"
   ],
   "dependencies": {
     "yeoman-generator": "~0.16.0",
