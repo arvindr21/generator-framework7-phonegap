@@ -79,7 +79,7 @@ $ grunt copy
 ```
 to copy all the contents of the _framework7/dist_ folder to _www_.
 
-** Note : All your developemt should happen inside the _framework7_ folder and then run `grunt dist`. Next `cd` back to the root folder and run `grunt copy` to copy the contents of _framework7/dist_ to _www_ folder** 
+**Note : All your developemt should happen inside the _framework7_ folder and then run `grunt dist`. Next `cd` back to the root folder and run `grunt copy` to copy the contents of _framework7/dist_ to _www_ folder** 
 
 From the root folder, run
 ```bash
@@ -87,7 +87,7 @@ $ grunt
 ```
 to spin off a server. You can see the contents of _www_ folder in your browser at `http://localhost:1881`.
 
-__you will find cordova.js as a 404 resource during Framework7 dev as well as PhoneGap dev. This will be resolved during PhoneGap Build__
+__Note : You will find cordova.js as a 404 resource during Framework7 dev as well as PhoneGap dev. This will be resolved during PhoneGap Build__
 
 ### Run on an Emulator
 
