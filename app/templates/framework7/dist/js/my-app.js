@@ -2,7 +2,7 @@
 var myApp = new Framework7();
 
 // Export selectors engine
-var $$ = Framework7.$;
+var $$ = Dom7;
 
 // Add view
 var mainView = myApp.addView('.view-main', {
@@ -10,26 +10,22 @@ var mainView = myApp.addView('.view-main', {
     dynamicNavbar: true
 });
 
-// Event listener to run specific code for specific pages
-$$(document).on('pageInit', function (e) {
-    var page = e.detail.page;
-    // If it is About page
-    if (page.name === 'about') {
-        // run createContentPage func after link was clicked
-        $$('.create-page').on('click', function () {
-            createContentPage();
-        });
-    }
+// Callbacks to run specific code for specific pages, for example for About page:
+myApp.onPageInit('about', function (page) {
+    // run createContentPage func after link was clicked
+    $$('.create-page').on('click', function () {
+        createContentPage();
+    });
 });
 
 // Generate dynamic page
 var dynamicPageIndex = 0;
 function createContentPage() {
-	mainView.loadContent(
+	mainView.router.loadContent(
         '<!-- Top Navbar-->' +
         '<div class="navbar">' +
         '  <div class="navbar-inner">' +
-        '    <div class="left"><a href="#" class="back link"><i class="icon icon-back-blue"></i><span>Back</span></a></div>' +
+        '    <div class="left"><a href="#" class="back link"><i class="icon icon-back"></i><span>Back</span></a></div>' +
         '    <div class="center sliding">Dynamic Page ' + (++dynamicPageIndex) + '</div>' +
         '  </div>' +
         '</div>' +

@@ -4,6 +4,7 @@ var path = require('path');
 var helpers = require('yeoman-generator').test;
 
 describe('framework7-phonegap generator', function () {
+  this.timeout(15000);
   beforeEach(function (done) {
     helpers.testDirectory(path.join(__dirname, 'temp'), function (err) {
       if (err) {
