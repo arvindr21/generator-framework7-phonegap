@@ -1,7 +1,7 @@
 /* === Calendar === */
 .picker-calendar {
     background: #fff;
-    height: 300px;
+    height: 320px;
     width: 100%;
     overflow: hidden;
     @media (orientation: landscape) and (max-height: 415px) {
@@ -11,6 +11,9 @@
     }
     .picker-modal-inner {
         overflow: hidden;
+    }
+    .popover-picker-calendar & {
+        height: 320px;
     }
 }
 .popover.popover-picker-calendar {
@@ -93,6 +96,8 @@
     color:#000;
     font-size: 15px;
     cursor: pointer;
+    z-index: 20;
+    height: 100%;
     &.picker-calendar-day-weekend {
     }
     &.picker-calendar-day-prev, &.picker-calendar-day-next {
@@ -112,13 +117,43 @@
         background: @themeColor;
         color:#fff;
     }
+    &.picker-calendar-day-has-events span {
+        &:after {
+            content: '';
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #ccc;
+            position: absolute;
+            margin-left: -2px;
+            left: 50%;
+            bottom: 1px;
+        }
+    }
+    &.picker-calendar-day-has-events.picker-calendar-day-selected span:after {
+        display: none;
+    }
     span {
         display: inline-block;
         border-radius: 100%;
         width: 30px;
         height: 30px;
         line-height: 30px;
+        position: relative;
 
+    }
+    .picker-calendar-range &.picker-calendar-day-selected {
+        .align-items(stretch);
+        .align-content(stretch);
+        span {
+            width: 100%;
+            border-radius: 0;
+            height: auto;
+            text-align: center;
+            .flexbox();
+            .align-items(center);
+            .justify-content(center);
+        }
     }
 }
 .picker-calendar-month-picker, .picker-calendar-year-picker {

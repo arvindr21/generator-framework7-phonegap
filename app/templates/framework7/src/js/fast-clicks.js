@@ -28,11 +28,11 @@ app.initFastClicks = function () {
     }
     function isInsideScrollableView(el) {
         var pageContent = el.parents('.page-content, .panel');
-        
+
         if (pageContent.length === 0) {
             return false;
         }
-        
+
         // This event handler covers the "tap to stop scrolling".
         if (pageContent.prop('scrollHandlerSet') !== 'yes') {
             pageContent.on('scroll', function() {
@@ -41,14 +41,17 @@ app.initFastClicks = function () {
             });
             pageContent.prop('scrollHandlerSet', 'yes');
         }
-        
+
         return true;
     }
     function addActive() {
+        if (!activableElement) return;
         activableElement.addClass('active-state');
     }
     function removeActive(el) {
+        if (!activableElement) return;
         activableElement.removeClass('active-state');
+        activableElement = null;
     }
     function isFormElement(el) {
         var nodes = ('input select textarea label').split(' ');
@@ -136,10 +139,17 @@ app.initFastClicks = function () {
         var needsRipple = app.params.materialRippleElements;
         var $el = $(el);
         if ($el.is(needsRipple)) {
+            if ($el.hasClass('no-ripple')) {
+                return false;
+            }
             return $el;
         }
         else if ($el.parents(needsRipple).length > 0) {
-            return $el.parents(needsRipple).eq(0);
+            var rippleParent = $el.parents(needsRipple).eq(0);
+            if (rippleParent.hasClass('no-ripple')) {
+                return false;
+            }
+            return rippleParent;
         }
         else return false;
     }
@@ -164,21 +174,37 @@ app.initFastClicks = function () {
 
     function removeRipple() {
         if (!rippleWave) return;
+        var toRemove = rippleWave;
+
+        var removeTimeout = setTimeout(function () {
+            toRemove.remove();
+        }, 400);
+
         rippleWave
             .addClass('ripple-wave-fill')
             .transform(rippleTransform.replace('scale(1)', 'scale(1.01)'))
             .transitionEnd(function () {
+                clearTimeout(removeTimeout);
+
                 var rippleWave = $(this)
                     .addClass('ripple-wave-out')
                     .transform(rippleTransform.replace('scale(1)', 'scale(1.01)'));
+
+                removeTimeout = setTimeout(function () {
+                    rippleWave.remove();
+                }, 700);
+
                 setTimeout(function () {
                     rippleWave.transitionEnd(function(){
+                        clearTimeout(removeTimeout);
                         $(this).remove();
                     });
                 }, 0);
             });
+
         rippleWave = rippleTarget = undefined;
     }
+
     function rippleTouchStart (el, x, y) {
         rippleTarget = findRippleElement(el);
         if (!rippleTarget || rippleTarget.length === 0) {
@@ -208,8 +234,21 @@ app.initFastClicks = function () {
             setTimeout(removeRipple, 0);
         }
         else {
-            removeRipple();   
+            removeRipple();
         }
+    }
+
+    // Send Click
+    function sendClick(e) {
+        var touch = e.changedTouches[0];
+        var evt = document.createEvent('MouseEvents');
+        var eventType = 'click';
+        if (app.device.android && targetElement.nodeName.toLowerCase() === 'select') {
+            eventType = 'mousedown';
+        }
+        evt.initMouseEvent(eventType, true, true, window, 1, touch.screenX, touch.screenY, touch.clientX, touch.clientY, false, false, false, false, 0, null);
+        evt.forwardedTouchEvent = true;
+        targetElement.dispatchEvent(evt);
     }
 
     // Touch Handlers
@@ -217,7 +256,11 @@ app.initFastClicks = function () {
         isMoved = false;
         tapHoldFired = false;
         if (e.targetTouches.length > 1) {
+            if (activableElement) removeActive();
             return true;
+        }
+        if (e.touches.length > 1 && activableElement) {
+            removeActive();
         }
         if (app.params.tapHold) {
             if (tapHoldTimeout) clearTimeout(tapHoldTimeout);
@@ -270,7 +313,7 @@ app.initFastClicks = function () {
         if ((e.timeStamp - lastClickTime) < app.params.fastClicksDelayBetweenClicks) {
             e.preventDefault();
         }
-        
+
         if (app.params.activeState) {
             activableElement = findActivableElement(targetElement);
             // If it's inside a scrollable view, we don't trigger active-state yet,
@@ -330,6 +373,10 @@ app.initFastClicks = function () {
         }
 
         if (document.activeElement === e.target) {
+            if (app.params.activeState) removeActive();
+            if (app.params.material && app.params.materialRipple) {
+                rippleTouchEnd();
+            }
             return true;
         }
 
@@ -353,7 +400,7 @@ app.initFastClicks = function () {
         }
 
         // Add active-state here because, in a very fast tap, the timeout didn't
-        // have the chance to execute. Removing active-state in a timeout gives 
+        // have the chance to execute. Removing active-state in a timeout gives
         // the chance to the animation execute.
         if (app.params.activeState) {
             addActive();
@@ -366,7 +413,17 @@ app.initFastClicks = function () {
 
         // Trigger focus when required
         if (targetNeedsFocus(targetElement)) {
-            targetElement.focus();
+            if (app.device.ios && app.device.webView) {
+                if ((event.timeStamp - touchStartTime) > 159) {
+                    targetElement = null;
+                    return false;
+                }
+                targetElement.focus();
+                return false;
+            }
+            else {
+                targetElement.focus();
+            }
         }
 
         // Blur active elements
@@ -376,28 +433,20 @@ app.initFastClicks = function () {
 
         // Send click
         e.preventDefault();
-        var touch = e.changedTouches[0];
-        var evt = document.createEvent('MouseEvents');
-        var eventType = 'click';
-        if (app.device.android && targetElement.nodeName.toLowerCase() === 'select') {
-            eventType = 'mousedown';
-        }
-        evt.initMouseEvent(eventType, true, true, window, 1, touch.screenX, touch.screenY, touch.clientX, touch.clientY, false, false, false, false, 0, null);
-        evt.forwardedTouchEvent = true;
-        targetElement.dispatchEvent(evt);
+        sendClick(e);
         return false;
     }
     function handleTouchCancel(e) {
         trackClick = false;
         targetElement = null;
-        
+
         // Remove Active State
         clearTimeout(activeTimeout);
         clearTimeout(tapHoldTimeout);
         if (app.params.activeState) {
             removeActive();
         }
-        
+
         // Remove Ripple
         if (app.params.material && app.params.materialRipple) {
             rippleTouchEnd();
@@ -406,7 +455,7 @@ app.initFastClicks = function () {
 
     function handleClick(e) {
         var allowClick = false;
-        
+
         if (trackClick) {
             targetElement = null;
             trackClick = false;
@@ -457,12 +506,12 @@ app.initFastClicks = function () {
                 tapHoldFired = false;
             }, (app.device.ios || app.device.androidChrome ? 100 : 400));
         }
-            
+
         return allowClick;
     }
     if (app.support.touch) {
         document.addEventListener('click', handleClick, true);
-        
+
         document.addEventListener('touchstart', handleTouchStart);
         document.addEventListener('touchmove', handleTouchMove);
         document.addEventListener('touchend', handleTouchEnd);
@@ -475,5 +524,11 @@ app.initFastClicks = function () {
             document.addEventListener('mouseup', handleMouseUp);
         }
     }
-        
+    if (app.params.material && app.params.materialRipple) {
+        document.addEventListener('contextmenu', function (e) {
+            if (activableElement) removeActive();
+            rippleTouchEnd();
+        });
+    }
+
 };

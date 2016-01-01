@@ -1,7 +1,7 @@
 /*=============================================================
 ************   Hide/show Toolbar/Navbar on scroll   ************
 =============================================================*/
-app.initScrollToolbars = function (pageContainer) {
+app.initPageScrollToolbars = function (pageContainer) {
     pageContainer = $(pageContainer);
     var scrollContent = pageContainer.find('.page-content');
     if (scrollContent.length === 0) return;
@@ -40,13 +40,15 @@ app.initScrollToolbars = function (pageContainer) {
         currentScroll = scrollContent[0].scrollTop;
         scrollHeight = scrollContent[0].scrollHeight;
         offsetHeight = scrollContent[0].offsetHeight;
-        reachEnd = app.params.showBarsOnPageScrollEnd && (currentScroll + offsetHeight >= scrollHeight - bottomBarHeight);
+        reachEnd =  currentScroll + offsetHeight >= scrollHeight - bottomBarHeight;
         navbarHidden = navbar.hasClass('navbar-hidden');
         toolbarHidden = toolbar.hasClass('toolbar-hidden');
         tabbarHidden = tabbar && tabbar.hasClass('toolbar-hidden');
 
         if (reachEnd) {
-            action = 'show';
+            if (app.params.showBarsOnPageScrollEnd) {
+                action = 'show';
+            }
         }
         else if (previousScroll > currentScroll) {
             if (app.params.showBarsOnPageScrollTop || currentScroll <= 44) {

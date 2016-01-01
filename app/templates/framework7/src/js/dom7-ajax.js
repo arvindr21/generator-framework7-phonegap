@@ -63,7 +63,7 @@ $.ajax = function (options) {
     // UC method
     var _method = options.method.toUpperCase();
     // Data to modify GET URL
-    if ((_method === 'GET' || _method === 'HEAD') && options.data) {
+    if ((_method === 'GET' || _method === 'HEAD' || _method === 'OPTIONS' || _method === 'DELETE') && options.data) {
         var stringData;
         if (typeof options.data === 'string') {
             // Should be key=value string
@@ -74,7 +74,10 @@ $.ajax = function (options) {
             // Should be key=value object
             stringData = $.serializeObject(options.data);
         }
-        options.url += paramsPrefix + stringData;
+        if (stringData.length) {
+            options.url += paramsPrefix + stringData;
+            if (paramsPrefix === '?') paramsPrefix = '&';
+        }
     }
     // JSONP
     if (options.dataType === 'json' && options.url.indexOf('callback=') >= 0) {
@@ -119,7 +122,7 @@ $.ajax = function (options) {
     }
 
     // Cache for GET/HEAD requests
-    if (_method === 'GET' || _method === 'HEAD') {
+    if (_method === 'GET' || _method === 'HEAD' || _method === 'OPTIONS' || _method === 'DELETE') {
         if (options.cache === false) {
             options.url += (paramsPrefix + '_nocache=' + Date.now());
         }
@@ -138,7 +141,7 @@ $.ajax = function (options) {
     // Create POST Data
     var postData = null;
 
-    if ((_method === 'POST' || _method === 'PUT') && options.data) {
+    if ((_method === 'POST' || _method === 'PUT' || _method === 'PATCH') && options.data) {
         if (options.processData) {
             var postDataInstances = [ArrayBuffer, Blob, Document, FormData];
             // Post Data
@@ -215,7 +218,8 @@ $.ajax = function (options) {
                 }
             }
             else {
-                fireAjaxCallback('ajaxSuccess', {xhr: xhr}, 'success', xhr.responseText, xhr.status, xhr);
+                responseData = xhr.responseType === 'text' || xhr.responseType === '' ? xhr.responseText : xhr.response;
+                fireAjaxCallback('ajaxSuccess', {xhr: xhr}, 'success', responseData, xhr.status, xhr);
             }
         }
         else {
@@ -243,6 +247,9 @@ $.ajax = function (options) {
 
     // Timeout
     if (options.timeout > 0) {
+        xhr.onabort = function () {
+            if (xhrTimeout) clearTimeout(xhrTimeout);
+        };
         xhrTimeout = setTimeout(function () {
             xhr.abort();
             fireAjaxCallback('ajaxError', {xhr: xhr, timeout: true}, 'error', xhr, 'timeout');
