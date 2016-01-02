@@ -13,7 +13,7 @@
     width: 100%;
     height: 100%;
     background: rgba(0,0,0,0.4);
-    z-index: 10600;
+    z-index: 13000;
     visibility: hidden;
     opacity: 0;
     .transition(@modalDuration);
@@ -23,12 +23,15 @@
     }
 }
 .popup-overlay {
-    z-index: 10200;
+    z-index: 10500;
+}
+.picker-modal-overlay {
+    z-index: 12000;
 }
 .modal {
     width: 280px;
     position: absolute;
-    z-index: 11000;
+    z-index: 13500;
     left: 50%;
     margin-left: -140px;
     margin-top: 0;
@@ -53,7 +56,7 @@
     }
     &.modal-out {
         opacity: 0;
-        z-index: 11000-1;
+        z-index: 13500-1;
         .transition(@modalDuration);
         .transform(translate3d(0,0,0) scale(0.815));
     }
@@ -104,10 +107,6 @@
     + .modal-button {
         margin-left: 4px;
     }
-    .modal-buttons-vertical & {
-        // &:last-child {
-        // }
-    }
 }
 .modal-no-buttons {
     .modal-buttons {
@@ -119,7 +118,7 @@
     position: absolute;
     left: 0;
     bottom: 0;
-    z-index: 11000;
+    z-index: 13500;
     width: 100%;
     background: #fff;
     .transform(translate3d(0,100%,0));
@@ -128,7 +127,7 @@
         .transform(translate3d(0,0,0));
     }
     &.modal-out {
-        z-index: 11000-1;
+        z-index: 13500-1;
         .transition(@actionsModalDuration);
         .transform(translate3d(0,100%,0));
     }
@@ -224,7 +223,7 @@ input.modal-text-input {
 .popover {
     width: 320px;
     background: #fff;
-    z-index: 11000;
+    z-index: 13500;
     margin: 0;
     top: 0;
     opacity: 0;
@@ -234,9 +233,9 @@ input.modal-text-input {
     display: none;
     .depth(2);
     .transform(scale(0.85, 0.6));
-    -webkit-transition-property: opacity, -webkit-transform;
-    -moz-transition-property: opacity, -moz-transform;
-    transition-property: opacity, transform;
+    -webkit-transition-property: opacity, -webkit-transform, border-radius;
+    -moz-transition-property: opacity, -moz-transform, border-radius;
+    transition-property: opacity, transform, border-radius;
     &.popover-on-top {
         .transform-origin(center bottom);
     }
@@ -286,9 +285,52 @@ input.modal-text-input {
             }
         }
     }
+    &.popover-floating-button {
+        .transform-origin(center center);
+        .transform(scale(0.7));
+        border-radius: 50%;
+        box-shadow: none;
+        .depth(3);
+        &.modal-in {
+            border-radius: 0%;
+            .transform(scale(1));
+            .delay(200ms);
+            .transition(200ms);
+        }
+        &.modal-out {
+            border-radius: 50%;
+            .transform(scale(0.7));
+            .delay(0ms);
+            .transition(100ms);
+        }
+        .list-block {
+            margin: 0;
+            &:first-child {
+                ul {
+                    border-radius: 0;
+                }
+                li:first-child a {
+                    border-radius: 0;
+                }
+            }
+            &:last-child {
+                ul {
+                    border-radius: 0;
+                }
+                li:last-child a {
+                    border-radius: 0;
+                }
+            }
+            &:first-child:last-child {
+                li:first-child:last-child a, ul:first-child:last-child {
+                    border-radius: 0;
+                }
+            }
+        }
+    }
 }
 .popover-inner {
-    .scrollable();    
+    .scrollable();
 }
 .actions-popover {
     .list-block {
@@ -315,7 +357,7 @@ input.modal-text-input {
     top: 0;
     width: 100%;
     height: 100%;
-    z-index: 10400;
+    z-index: 11000;
     background: #fff;
     box-sizing:border-box;
     display: none;
@@ -368,7 +410,7 @@ html.with-statusbar-overlay {
             top: 20px;
         }
         .popup-overlay {
-            z-index: 9800;
+            z-index: 9500;
         }
     }
     .login-screen, .popup.tablet-fullscreen {
@@ -397,7 +439,7 @@ html.with-statusbar-overlay {
     margin-left: -24px;
     margin-top: -24px;
     background: rgba(0,0,0,0.8);
-    z-index: 11000;
+    z-index: 13500;
     border-radius: 4px;
     .preloader {
         display: block;
@@ -411,7 +453,7 @@ html.with-statusbar-overlay {
     bottom: 0;
     width: 100%;
     height: 260px;
-    z-index: 11500;
+    z-index: 12000;
     display: none;
     -webkit-transition-property: -webkit-transform;
     -moz-transition-property: -moz-transform;
@@ -494,6 +536,15 @@ html.with-statusbar-overlay {
         width: auto;
         .toolbar:first-child, .picker-header:first-child {
             border-radius: 2px 2px 0 0;
+        }
+    }
+    &.smart-select-picker {
+        .list-block {
+            margin: 0;
+            ul {
+                .hairline-remove(top);
+                .hairline-remove(bottom);
+            }
         }
     }
 }

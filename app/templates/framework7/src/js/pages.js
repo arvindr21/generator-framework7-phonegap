@@ -77,11 +77,24 @@ app.pageInitCallback = function (view, params) {
     var pageContainer = params.pageContainer;
     if (pageContainer.f7PageInitialized && view && !view.params.domCache) return;
 
+    var pageQuery = params.query;
+    if (!pageQuery) {
+        if (params.url && params.url.indexOf('?') > 0) {
+            pageQuery = $.parseUrlQuery(params.url || '');
+        }
+        else if (pageContainer.f7PageData && pageContainer.f7PageData.query) {
+            pageQuery = pageContainer.f7PageData.query;
+        }
+        else {
+            pageQuery = {};
+        }
+    }
+
     // Page Data
     var pageData = {
         container: pageContainer,
         url: params.url,
-        query: params.query || $.parseUrlQuery(params.url || ''),
+        query: pageQuery,
         name: $(pageContainer).attr('data-page'),
         view: view,
         from: params.position,
@@ -99,7 +112,7 @@ app.pageInitCallback = function (view, params) {
 
         // Callbacks
         app.pluginHook('pageReinit', pageData);
-        if (app.params.onPageReinit) app.params.onPageBeforeInit(app, pageData);
+        if (app.params.onPageReinit) app.params.onPageReinit(app, pageData);
         app.triggerPageCallbacks('reinit', pageData.name, pageData);
         $(pageData.container).trigger('pageReinit', {page: pageData});
         return;
@@ -188,11 +201,24 @@ app.pageAnimCallback = function (callback, view, params) {
     var pageContainer = params.pageContainer;
     var pageContext;
     if (pageContainer.f7PageData) pageContext = pageContainer.f7PageData.context;
+
+    var pageQuery = params.query;
+    if (!pageQuery) {
+        if (params.url && params.url.indexOf('?') > 0) {
+            pageQuery = $.parseUrlQuery(params.url || '');
+        }
+        else if (pageContainer.f7PageData && pageContainer.f7PageData.query) {
+            pageQuery = pageContainer.f7PageData.query;
+        }
+        else {
+            pageQuery = {};
+        }
+    }
     // Page Data
     var pageData = {
         container: pageContainer,
         url: params.url,
-        query: params.query || $.parseUrlQuery(params.url || ''),
+        query: pageQuery,
         name: $(pageContainer).attr('data-page'),
         view: view,
         from: params.position,
@@ -274,17 +300,19 @@ app.initPage = function (pageContainer) {
     // Init pull to refres
     if (app.initPullToRefresh) app.initPullToRefresh(pageContainer);
     // Init infinite scroll
-    if (app.initInfiniteScroll) app.initInfiniteScroll(pageContainer);
+    if (app.initPageInfiniteScroll) app.initPageInfiniteScroll(pageContainer);
     // Init searchbar
     if (app.initSearchbar) app.initSearchbar(pageContainer);
     // Init message bar
     if (app.initPageMessagebar) app.initPageMessagebar(pageContainer);
     // Init scroll toolbars
-    if (app.initScrollToolbars) app.initScrollToolbars(pageContainer);
+    if (app.initPageScrollToolbars) app.initPageScrollToolbars(pageContainer);
     // Init lazy images
     if (app.initImagesLazyLoad) app.initImagesLazyLoad(pageContainer);
+    // Init progress bars
+    if (app.initPageProgressbar) app.initPageProgressbar(pageContainer);
     // Init resizeable textareas
-    if (app.initPageResizableTextareas) app.initPageResizableTextareas(pageContainer);
+    if (app.initPageResizableTextarea) app.initPageResizableTextarea(pageContainer);
     // Init Material Preloader
     if (app.params.material && app.initPageMaterialPreloader) app.initPageMaterialPreloader(pageContainer);
     // Init Material Inputs

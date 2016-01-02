@@ -29,6 +29,21 @@ Framework7 Color Themes
         background: @color;
         color:#fff;
     }
+    // Progress bar
+    .progressbar {
+        &.color-@{colorName}, &.theme-@{colorName}, .theme-@{colorName} &, &.bg-@{colorName} {
+            span {
+                background-color: @color;
+            }
+        }
+    }
+    .progressbar-infinite {
+        &.color-@{colorName}, &.theme-@{colorName}, .theme-@{colorName} &, &.bg-@{colorName} {
+            &:before {
+                background-color: @color;
+            }
+        }
+    }
     //Icons
     .color-@{colorName}, .theme-@{colorName} {
         i.icon, i.icon& {
@@ -68,6 +83,9 @@ Framework7 Color Themes
         }
         .range-slider, .range-slider& {
             input[type="range"]::-webkit-slider-thumb:before {
+                background-color: @color;
+            }
+            input[type="range"]::-ms-fill-lower {
                 background-color: @color;
             }
         }
@@ -110,6 +128,11 @@ Framework7 Color Themes
                 background-color: @color;
             }
         }
+    }
+    //Badges
+    .badge.color-@{colorName}, .badge.theme-@{colorName} {
+    	background-color:@color;
+    	color: #fff;
     }
 }
 .theme-mixin(e('gray'), #8e8e93, '8e8e93');
@@ -157,6 +180,14 @@ Framework7 Layouts Themes
         color:@barsText;
     }
     // Picker
+    .picker-modal {
+        .toolbar {
+            background-color: @barsBg;
+        }
+    }
+    .popover .picker-modal .toolbar {
+        background: none;
+    }
     .picker-calendar-week-days {
         color:#fff;
         background-color: @barsBg;
@@ -181,7 +212,10 @@ Framework7 Layouts Themes
                 color: #555;
             }
             &.picker-calendar-day-today span {
-                background: #444;
+                background: #333;
+            }
+            &.picker-calendar-day-has-events span:after {
+                background: #555;
             }
         }
         .picker-calendar-week-days, .picker-calendar-row {
@@ -198,11 +232,19 @@ Framework7 Layouts Themes
         }
     }
     // Photo Browser
-    .photo-browser, .photo-browser&, .view[data-page="photo-browser-slides"], .view[data-page="photo-browser-slides"]& {
+    .photo-browser, .views .view[data-page="photo-browser-slides"] {
         .navbar, .toolbar {
-            background: rgba(red(@barsBg), green(@barsBg), blue(@barsBg), 0.95);
+            color:#000;
+            background: rgba(247,247,247,0.95);
         }
     }
+    .photo-browser-dark {
+        .navbar, .toolbar {
+            background: rgba(30,30,30,0.8);
+            color:#fff;
+        }
+    }
+
     .tabbar a:not(.active) {
         color:@tabBarText;
     }
@@ -235,6 +277,12 @@ Framework7 Layouts Themes
             background: none;
         }
     }
+    .autocomplete-dropdown  {
+        background: @blockBg;
+        .list-block b {
+            color: #fff;
+        }
+    }
     .card {
         background: @blockBg;
     }
@@ -252,7 +300,7 @@ Framework7 Layouts Themes
         }
         .list-block ul {
             background: none;
-        }    
+        }
 
     }
     .actions-popover .list-block ul {
@@ -287,10 +335,10 @@ Framework7 Layouts Themes
     }
     .item-divider, .list-group-title {
         background: @dividerBg;
-        color:@lightText;        
+        color:@lightText;
         .hairline-color(top, @blockBorder);
     }
-    
+
     // Searchbar
     .searchbar {
         background: @searchbarBg;
@@ -312,7 +360,9 @@ Framework7 Layouts Themes
     .range-slider input[type="range"]:after {
         background: @blockBg;
     }
-
+    .range-slider input[type="range"]::-ms-thumb {
+        border: none;
+    }
 }
 
 /* === White layout === */
@@ -345,7 +395,16 @@ Framework7 Layouts Themes
         background-color: @barsBg;
         color:@barsText;
     }
+
     // Picker
+    .picker-modal {
+        .toolbar {
+            background-color: @barsBg;
+        }
+    }
+    .popover .picker-modal .toolbar {
+        background: none;
+    }
     .popover .picker-modal, .picker-modal.picker-modal-inline {
         .picker-center-highlight {
             .hairline-color(top, @barsBorder);
@@ -364,9 +423,16 @@ Framework7 Layouts Themes
         }
     }
     // Photo Browser
-    .photo-browser, .photo-browser&, .view[data-page="photo-browser-slides"], .view[data-page="photo-browser-slides"]& {
+    .photo-browser, .views .view[data-page="photo-browser-slides"] {
         .navbar, .toolbar {
-            background: rgba(red(@barsBg), green(@barsBg), blue(@barsBg), 0.95);
+            color:#000;
+            background: rgba(247,247,247,0.95);
+        }
+    }
+    .photo-browser-dark {
+        .navbar, .toolbar {
+            background: rgba(30,30,30,0.8);
+            color:#fff;
         }
     }
     .tabbar a:not(.active) {
@@ -433,7 +499,7 @@ Framework7 Layouts Themes
         color:@lightText;
         .hairline-color(top, @blockBorder);
     }
-    
+
     // Searchbar
     .searchbar {
         background: @searchbarBg;

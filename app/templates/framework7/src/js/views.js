@@ -21,7 +21,13 @@ var View = function (selector, params) {
     };
     var i;
 
+    // Params
     params = params || {};
+
+    // Disable dynamic navbar for material theme
+    if (params.dynamicNavbar && app.params.material) params.dynamicNavbar = false;
+
+    // Extend params with defaults
     for (var def in defaults) {
         if (typeof params[def] === 'undefined') {
             params[def] = defaults[def];
@@ -61,11 +67,13 @@ var View = function (selector, params) {
     // Pages
     view.pagesContainer = container.find('.pages')[0];
     view.initialPages = [];
+    view.initialPagesUrl = [];
     view.initialNavbars = [];
     if (view.params.domCache) {
         var initialPages = container.find('.page');
         for (i = 0; i < initialPages.length; i++) {
             view.initialPages.push(initialPages[i]);
+            view.initialPagesUrl.push('#' + initialPages.eq(i).attr('data-page'));
         }
         if (view.params.dynamicNavbar) {
             var initialNavbars = container.find('.navbar-inner');
@@ -120,6 +128,9 @@ var View = function (selector, params) {
     if (currentPageData) {
         currentPageData.view = view;
         currentPageData.url = view.url;
+        if (view.params.domCache && view.params.dynamicNavbar && !currentPageData.navbarInnerContainer) {
+            currentPageData.navbarInnerContainer = view.initialNavbars[view.initialPages.indexOf(currentPageData.container)];
+        }
         view.activePage = currentPageData;
         currentPage[0].f7PageData = currentPageData;
     }
@@ -537,24 +548,35 @@ var View = function (selector, params) {
     // Push State on load
     if (app.params.pushState && view.main) {
         var pushStateUrl;
+        var pushStateUrlSplit = docLocation.split(pushStateSeparator)[1];
         if (pushStateRoot) {
             pushStateUrl = docLocation.split(app.params.pushStateRoot + pushStateSeparator)[1];
         }
-        else if (docLocation.indexOf(pushStateSeparator) >= 0 && docLocation.indexOf(pushStateSeparator + '#') < 0) {
-            pushStateUrl = docLocation.split(pushStateSeparator)[1];
+        else if (pushStateSeparator && docLocation.indexOf(pushStateSeparator) >= 0 && docLocation.indexOf(pushStateSeparator + '#') < 0) {
+            pushStateUrl = pushStateUrlSplit;
         }
         var pushStateAnimatePages = app.params.pushStateNoAnimation ? false : undefined;
+        var historyState = history.state;
 
         if (pushStateUrl) {
-            app.router.load(view, {url: pushStateUrl, animatePages: pushStateAnimatePages, pushState: false});
+            if (pushStateUrl.indexOf('#') >= 0 && view.params.domCache && historyState && historyState.pageName && 'viewIndex' in historyState) {
+                app.router.load(view, {pageName: historyState.pageName, animatePages: pushStateAnimatePages, pushState: false});
+            }
+            else if (pushStateUrl.indexOf('#') >= 0 && view.params.domCache && view.initialPagesUrl.indexOf(pushStateUrl) >= 0) {
+                app.router.load(view, {pageName: pushStateUrl.replace('#',''), animatePages: pushStateAnimatePages, pushState: false});   
+            }
+            else app.router.load(view, {url: pushStateUrl, animatePages: pushStateAnimatePages, pushState: false});
         }
-        else if (docLocation.indexOf(pushStateSeparator + '#') >= 0) {
-            var state = history.state;
-            if (state.pageName && 'viewIndex' in state) {
-                app.router.load(view, {pageName: state.pageName, pushState: false});
+        else if (view.params.domCache && docLocation.indexOf(pushStateSeparator + '#') >= 0) {
+            if (historyState && historyState.pageName && 'viewIndex' in historyState) {
+                app.router.load(view, {pageName: historyState.pageName, animatePages: pushStateAnimatePages, pushState: false});
+            }
+            else if (pushStateSeparator && pushStateUrlSplit.indexOf('#') === 0) {
+                if (view.initialPagesUrl.indexOf(pushStateUrlSplit)) {
+                    app.router.load(view, {pageName: pushStateUrlSplit.replace('#', ''), animatePages: pushStateAnimatePages, pushState: false});
+                }
             }
         }
-
     }
 
     // Destroy

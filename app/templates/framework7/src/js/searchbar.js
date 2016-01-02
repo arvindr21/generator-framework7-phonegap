@@ -83,15 +83,7 @@ var Searchbar = function (container, params) {
         s.notFound = $(s.params.notFound);
     }
 
-    // Cancel button
-    var cancelMarginProp = app.rtl ? 'margin-left' : 'margin-right';
-    if (s.cancelButton.length > 0 && !s.material) {
-        s.cancelButton.transition(0).show();
-        s.cancelButton.css(cancelMarginProp, -s.cancelButton[0].offsetWidth + 'px');
-        setTimeout(function () {
-            s.cancelButton.transition('');    
-        }, 0);
-    }
+    
 
     // Diacritics
     var defaultDiacriticsRemovalap = [
@@ -197,6 +189,17 @@ var Searchbar = function (container, params) {
         });
     }
 
+    // Set Cancel button
+    var cancelMarginProp = app.rtl ? 'margin-left' : 'margin-right';
+    var cancelButtonHasMargin = false;
+    s.setCancelButtonMargin = function () {
+        s.cancelButton.transition(0).show();
+        s.cancelButton.css(cancelMarginProp, -s.cancelButton[0].offsetWidth + 'px');
+        var clientLeft = s.cancelButton[0].clientLeft;
+        s.cancelButton.transition('');
+        cancelButtonHasMargin = true;
+    };
+
     // Trigger
     s.triggerEvent = function (eventName, callbackName, eventData) {
         s.container.trigger(eventName, eventData);
@@ -209,11 +212,16 @@ var Searchbar = function (container, params) {
         function _enable() {
             if ((s.searchList.length || s.params.customSearch) && !s.container.hasClass('searchbar-active')) s.overlay.addClass('searchbar-overlay-active');
             s.container.addClass('searchbar-active');
-            if (s.cancelButton.length > 0 && !s.material) s.cancelButton.css(cancelMarginProp, '0px');
+            if (s.cancelButton.length > 0 && !s.material) {
+                if (!cancelButtonHasMargin) {
+                    s.setCancelButtonMargin();
+                }
+                s.cancelButton.css(cancelMarginProp, '0px');
+            }
             s.triggerEvent('enableSearch', 'onEnable');
             s.active = true;
         }
-        if (app.device.ios) {
+        if (app.device.ios && !app.params.material) {
             setTimeout(function () {
                 _enable();
             }, 400);
@@ -397,6 +405,7 @@ var Searchbar = function (container, params) {
         s.input[method]('focus', s.enable);
         s.input[method]('change keydown keypress keyup', s.handleInput);
         s.clearButton[method]('click', s.clear);
+            
     };
     s.detachEvents = function() {
         s.attachEvents(true);

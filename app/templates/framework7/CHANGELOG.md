@@ -1,5 +1,132 @@
 # Change Log
 
+## Framework7 v1.4.0 - Updated on December 7, 2015
+  * New mobile-friendly "Autocomplete" component. Comes with 2 modifications as Dropdown or Standalone autocomplete
+  * New "Progress Bar" component. Includes 3 different types of progress bar for each theme: "Determinate", "Indeterminate" and "Indeterminate Multi-color"
+  * New "Swipeable Tabs" component which allows you to change Tabs by swiping left/right
+  * Material Theme
+    * Fixed issue with Notifications closing without animation in webkit browsers
+    * New "Scrollable Tabbar" Tabbar modification. Allows to swipe/scroll through tab links if they all don't fit into view
+    * New "Bottom Toolbar" Toolbar modification. It allows to use Toolbar on the bottom of screen instead of only on the top
+    * New "Speed dial" Floating Action Button transition when it shows additional action buttons by tapping on it
+    * New "Popover Morph" Floating Action Button transition when it morphs to Popover by tapping on it
+    * Reworked "Preloader" in favor of plain HTML elements animation instead of SVG which has visual issues on "slow" devices.
+      * `materialPreloaderSvg` parameter is deprectated and replaced with the new one `materialPreloaderHtml`
+  * Dom7
+    * Added option to trigger multiple events using space separated syntax `.trigger('event1 event2 event3')`
+  * Calendar
+    * Fixed Calendar dates ordering on iOS in Date Range Picker mode
+  * Swiper updated to latest 3.2.7 version:
+    * New "Auto Height" mode when container/wrapper adopts to the height of currently active slide. Can be enabled with `autoHeight: true` parameter
+    * Numerous minor improvements
+  * Custom Build
+    * Added "progressbar" and "autcomplete" modules
+  * Numerous minor fixes and improvements
+
+## Framework7 v1.3.5 - Updated on November 8, 2015
+  * Material Theme:
+    * Fixed issue with not disappearing "ripples" in hidden elements
+    * Fixed Searchbar color when using color themes
+    * New "Chips" component
+  * Calendar
+    * New Date Range Picker mode, can be simple enabled by passing `rangePicker: true` parameter
+    * "Date range"-type parameter now accepts mixed types (single date + date range)
+  * Push State
+    * Fixed issue for dynamic pages loaded with passing DOM directly
+    * Fixed issue with Push State on start from inline-pages
+    * Imporved behavior with empty `pushStateSeparator` and `pushStateRoot`
+  * Virtual List
+    * New `showFilteredItemsOnly` parameter to show filtered items only when using filter
+  * Modals
+    * Reworked overlay's z-indexes
+  * Router
+    * Added support for passing DOM content in `preprocess` callback
+    * Fixed issue with `page.query` getting lost for deep Inline pages navigation
+  * Dom7
+    * Added support for XHR `DELETE`, `OPTIONS` and `PATCH` methods
+    * `$.serializeObject` now serialize deep objects and arrays
+  * Swiper updated to latest 3.2.0 version:
+    * Added responsive breakpoints support using new `breakpoints` parameter. Now you can specify different `slidesPerView` and other similar parameters for different sizes
+    * New callbacks: `onSlideNextStart`, `onSlideNextEnd`, `onSlidePrevStart`, `onSlidePrevEnd`
+    * Minor fixes
+  * Numerous minor fixes and improvements
+
+## Framework7 v1.3.1 - Updated on October 12, 2015
+  * Fixed issue with not showing "Cancel" button in Searchbar
+  * Fixed issue with Modal without buttons (liek Preloader modal)
+
+## Framework7 v1.3.0 - Updated on October 10, 2015
+  * iOS Theme
+    * New appearence to match new iOS 9 design, mostly for Overlays: Modal, Popover and Action Sheet
+    * Support for new San Francisco font:
+      * For desktops - using San Francisco font that can be downloaded from https://developer.apple.com/fonts/
+      * For iOS - using system San Francisco font
+    * Fixed issue with switch toggle in RTL layout
+  * Material Theme
+    * `dynamicNavbar` will be disabled automatically for this theme
+    * Added `no-ripple` class to disable ripple effect on specific elements
+    * Fixed issue with floating labels with predefined values
+    * Fixed behavior of hidden toolbars/tabbars
+    * Fixed issue in RTL layout for tab bar
+  * Smart Select
+    * App's `smartSelectInPopup` parameter is removed
+    * Added new app's `smartSelectOpenIn` parameter. Can be `page`, `popup` or `picker`. By default is `page`
+    * Added option to open it in picker:
+      * Using `data-open-in="picker"` attribute or `smartSelectOpenIn` app's parameter
+      * Picker close button text can be specified:
+        * Using `data-picker-close-text` attribute
+        * New app's `smartSelectPickerCloseText` parameter. By default is `Done`
+      * Smart Select picker height can be controlled using `data-picker-height` attribute
+    * Added support for none-standard `maxlength` attribute on `<select>` element to limit amount of selected items for "multiple" select
+  * Dom7
+    * New `prependTo(parent)` method to prepend element to parent
+    * New `appendTo(parent)` method to append element to parent
+    * Ajax: added support for data types different from "text", like "arraybuffer" and others
+    * `$.serializeObject` method now supports deep objects with objects and arrays
+  * Swipeout
+    * Now overswipe-button will have additonal "swipeout-overswipe-active" class during overswipe
+    * New `data-close-on-cancel="true"` attribute for "swipeout-delete" buttons with `data-confirm` to close swipeout element in case of user canceled confirm dialog
+  * Photo Browser
+    * Double tap to zoom now zooms to the tapped position, not only to the center of picture
+  * Messagebar
+    * Now when you type new message it will scroll messages pages to bottom only in case if you are in the bottom of this page 
+  * Picker
+    * Added `closeByOutsideClick` parameter to close picker automatically when you click outside of related input or picker. By default is `true`
+    * Now it will set related input's value on initialization with specified value
+  * Calendar
+    * Added `closeByOutsideClick` parameter to close picker automatically when you click outside of related input or picker. By default is `true`
+    * Now it will set related input's value on initialization with specified value
+    * New `disabled` parameter to specify additional "disabled" days
+    * New `events` parameter to specify dates with "events" (will be marked with additional dots)
+    * New `rangesClasses` parameter to easily add custom classes to specified dates
+  * Pull To Refresh
+    * New events `pullstart`, `pullmove`, `pullend` and `refreshdone`
+  * Forms
+    * Better cross-browser support for `input[type="range"]` element
+  * Virtual List
+    * Fixed issue with size and scroll calculating when initialized in hidden tab
+    * Fixed issue with size and scroll calculating when used not in page
+  * Searchbar
+    * Fixed issue with close button when initialized in hidden tab
+  * Lazy Loading
+    * Fixed issue with lazy loading in hidden tab
+  * Template7 update to latest 1.1.0 version:
+    * Fixed access to data (`@index`, `@key`) and root context (`@root`) in partials
+    * Fixed `null` variables not to be outputed
+  * Swiper updated to latest 3.1.7 version:
+    * Fixed issue with wrong slides fill when number of slides less than `slidesPerView * slidesPerColumn` with `slidesPerColumnFill: 'row'`
+    * Added support for images `srcset` with lazy loading using `data-srcset` attribute
+    * Fixed new Chrome errors with `WebkitCSSMatrix`
+    * Fixed issue with `slideToClickedSlide` with `loop` and `centeredSlides`
+    * New `freeModeMinimumVelocity` parameter to set minimum required touch velocity to trigger free mode momentum
+    * Ability to make the Scrollbar draggable using new paramaters:
+      * `scrollbarDraggable` - (boolean) by default is `false`. Allows to enable draggable scrollbar
+      * `scrollbarSnapOnRelease` - (boolean) by default is `false`. Control slider snap on scrollbar release
+  * Router
+    * Now precompiled/cached tamplates will be ignored in case of `ignoreCache: true` parameter
+    * Fixed issue with `domCache` when going back with `force:true` to home page
+  * Lot of minor fixes and improvements
+
 ## Framework7 v1.2.0 - Updated on July 18, 2015
   * New full featured Material theme designed according to Google guidelines
   * New Material-specific App' parameters:

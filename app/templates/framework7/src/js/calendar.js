@@ -11,22 +11,26 @@ var Calendar = function (params) {
         firstDay: 1, // First day of the week, Monday
         weekendDays: [0, 6], // Sunday and Saturday
         multiple: false,
+        rangePicker: false,
         dateFormat: 'yyyy-mm-dd',
         direction: 'horizontal', // or 'vertical'
         minDate: null,
         maxDate: null,
+        disabled: null, // dates range of disabled days
+        events: null, // dates range of days with events
+        rangesClasses: null, //array with custom classes date ranges
         touchMove: true,
         animate: true,
         closeOnSelect: false,
         monthPicker: true,
-        monthPickerTemplate: 
+        monthPickerTemplate:
             '<div class="picker-calendar-month-picker">' +
                 '<a href="#" class="link icon-only picker-calendar-prev-month"><i class="icon icon-prev"></i></a>' +
                 '<span class="current-month-value"></span>' +
                 '<a href="#" class="link icon-only picker-calendar-next-month"><i class="icon icon-next"></i></a>' +
             '</div>',
         yearPicker: true,
-        yearPickerTemplate: 
+        yearPickerTemplate:
             '<div class="picker-calendar-year-picker">' +
                 '<a href="#" class="link icon-only picker-calendar-prev-year"><i class="icon icon-prev"></i></a>' +
                 '<span class="current-year-value"></span>' +
@@ -34,6 +38,7 @@ var Calendar = function (params) {
             '</div>',
         weekHeader: true,
         // Common settings
+        closeByOutsideClick: true,
         scrollToInput: true,
         inputReadOnly: true,
         convertToPopover: true,
@@ -43,22 +48,22 @@ var Calendar = function (params) {
         headerPlaceholder: 'Select date',
         header: app.params.material,
         footer: app.params.material,
-        toolbarTemplate: 
+        toolbarTemplate:
             '<div class="toolbar">' +
                 '<div class="toolbar-inner">' +
                     '{{monthPicker}}' +
                     '{{yearPicker}}' +
                 '</div>' +
             '</div>',
-        headerTemplate: 
+        headerTemplate:
             '<div class="picker-header">' +
                 '<div class="picker-calendar-selected-date">{{placeholder}}</div>' +
             '</div>',
-        footerTemplate: 
+        footerTemplate:
             '<div class="picker-footer">' +
                 '<a href="#" class="button close-picker">{{closeText}}</a>' +
             '</div>',
-        
+
         /* Callbacks
         onMonthAdd
         onChange
@@ -104,8 +109,8 @@ var Calendar = function (params) {
                     if ($(window).width() >= 768) toPopover = true;
                 }
             }
-        } 
-        return toPopover; 
+        }
+        return toPopover;
     }
     function inPopover() {
         if (p.opened && p.container && p.container.length > 0 && p.container.parents('.popover').length > 0) return true;
@@ -153,6 +158,18 @@ var Calendar = function (params) {
             }
             p.updateValue();
         }
+        else if (p.params.rangePicker) {
+            if (!p.value) p.value = [];
+            if (p.value.length === 2 || p.value.length === 0) {
+                p.value = [];
+            }
+            if (p.value[0] !== value) p.value.push(value);
+            else p.value = [];
+            p.value.sort(function (a,b) {
+                return a - b;
+            });
+            p.updateValue();
+        }
         else {
             p.value = [value];
             p.updateValue();
@@ -160,15 +177,27 @@ var Calendar = function (params) {
     };
     p.setValue = function (arrValues) {
         p.value = arrValues;
-        p.updateValue();   
+        p.updateValue();
     };
     p.updateValue = function (onlyHeader) {
-        p.wrapper.find('.picker-calendar-day-selected').removeClass('picker-calendar-day-selected');
         var i, inputValue;
-        for (i = 0; i < p.value.length; i++) {
-            var valueDate = new Date(p.value[i]);
-            p.wrapper.find('.picker-calendar-day[data-date="' + valueDate.getFullYear() + '-' + valueDate.getMonth() + '-' + valueDate.getDate() + '"]').addClass('picker-calendar-day-selected');
+        if (p.container && p.container.length > 0) {
+            p.wrapper.find('.picker-calendar-day-selected').removeClass('picker-calendar-day-selected');
+            var valueDate;
+            if (p.params.rangePicker && p.value.length === 2) {
+                for (i = p.value[0]; i <= p.value[1]; i += 24*60*60*1000) {
+                    valueDate = new Date(i);
+                    p.wrapper.find('.picker-calendar-day[data-date="' + valueDate.getFullYear() + '-' + valueDate.getMonth() + '-' + valueDate.getDate() + '"]').addClass('picker-calendar-day-selected');
+                }
+            }
+            else {
+                for (i = 0; i < p.value.length; i++) {
+                    valueDate = new Date(p.value[i]);
+                    p.wrapper.find('.picker-calendar-day[data-date="' + valueDate.getFullYear() + '-' + valueDate.getMonth() + '-' + valueDate.getDate() + '"]').addClass('picker-calendar-day-selected');
+                }
+            }
         }
+
         if (p.params.onChange) {
             p.params.onChange(p, p.value);
         }
@@ -179,16 +208,16 @@ var Calendar = function (params) {
                 for (i = 0; i < p.value.length; i++) {
                     inputValue.push(formatDate(p.value[i]));
                 }
-                inputValue = inputValue.join(', ');
-            } 
-            if (app.params.material && p.params.header) {
+                inputValue = inputValue.join(p.params.rangePicker ? ' - ' : ', ');
+            }
+            if (app.params.material && p.params.header && p.container && p.container.length > 0) {
                 p.container.find('.picker-calendar-selected-date').text(inputValue);
             }
             if (p.input && p.input.length > 0 && !onlyHeader) {
                 $(p.input).val(inputValue);
                 $(p.input).trigger('change');
             }
-                
+
         }
     };
 
@@ -211,7 +240,7 @@ var Calendar = function (params) {
         }
         function handleTouchMove (e) {
             if (!isTouched) return;
-            
+
             touchCurrentX = e.type === 'touchmove' ? e.targetTouches[0].pageX : e.pageX;
             touchCurrentY = e.type === 'touchmove' ? e.targetTouches[0].pageY : e.pageY;
             if (typeof isScrolling === 'undefined') {
@@ -224,7 +253,7 @@ var Calendar = function (params) {
             e.preventDefault();
             if (p.animating) {
                 isTouched = false;
-                return;   
+                return;
             }
             allowItemClick = false;
             if (!isMoved) {
@@ -250,7 +279,7 @@ var Calendar = function (params) {
                 return;
             }
             isTouched = isMoved = false;
-            
+
             touchEndTime = new Date().getTime();
             if (touchEndTime - touchStartTime < 300) {
                 if (Math.abs(touchesDiff) < 10) {
@@ -262,7 +291,7 @@ var Calendar = function (params) {
                 }
                 else {
                     if (app.rtl) p.prevMonth();
-                    else p.nextMonth();   
+                    else p.nextMonth();
                 }
             }
             else {
@@ -292,10 +321,12 @@ var Calendar = function (params) {
                 day = $(e.target);
             }
             if (day.length === 0) return;
-            if (day.hasClass('picker-calendar-day-selected') && !p.params.multiple) return;
+            if (day.hasClass('picker-calendar-day-selected') && !(p.params.multiple || p.params.rangePicker)) return;
             if (day.hasClass('picker-calendar-day-disabled')) return;
-            if (day.hasClass('picker-calendar-day-next')) p.nextMonth();
-            if (day.hasClass('picker-calendar-day-prev')) p.prevMonth();
+            if (!p.params.rangePicker) {
+                if (day.hasClass('picker-calendar-day-next')) p.nextMonth();
+                if (day.hasClass('picker-calendar-day-prev')) p.prevMonth();
+            }
             var dateYear = day.attr('data-year');
             var dateMonth = day.attr('data-month');
             var dateDay = day.attr('data-day');
@@ -303,7 +334,9 @@ var Calendar = function (params) {
                 p.params.onDayClick(p, day[0], dateYear, dateMonth, dateDay);
             }
             p.addValue(new Date(dateYear, dateMonth, dateDay).getTime());
-            if (p.params.closeOnSelect) p.close();
+            if (p.params.closeOnSelect) {
+                if (p.params.rangePicker && p.value.length === 2 || !p.params.rangePicker) p.close();
+            }
         }
 
         p.container.find('.picker-calendar-prev-month').on('click', p.prevMonth);
@@ -316,7 +349,7 @@ var Calendar = function (params) {
             p.wrapper.on(app.touchEvents.move, handleTouchMove);
             p.wrapper.on(app.touchEvents.end, handleTouchEnd);
         }
-            
+
         p.container[0].f7DestroyCalendarEvents = function () {
             p.container.find('.picker-calendar-prev-month').off('click', p.prevMonth);
             p.container.find('.picker-calendar-next-month').off('click', p.nextMonth);
@@ -329,13 +362,63 @@ var Calendar = function (params) {
                 p.wrapper.off(app.touchEvents.end, handleTouchEnd);
             }
         };
-        
+
 
     };
     p.destroyCalendarEvents = function (colContainer) {
         if ('f7DestroyCalendarEvents' in p.container[0]) p.container[0].f7DestroyCalendarEvents();
     };
 
+    // Scan Dates Range
+    p.dateInRange = function (dayDate, range) {
+        var match = false;
+        var i;
+        if (!range) return false;
+        if ($.isArray(range)) {
+            for (i = 0; i < range.length; i ++) {
+                if (range[i].from || range[i].to) {
+                    if (range[i].from && range[i].to) {
+                        if ((dayDate <= new Date(range[i].to).getTime()) && (dayDate >= new Date(range[i].from).getTime())) {
+                            match = true;
+                        }
+                    }
+                    else if (range[i].from) {
+                        if (dayDate >= new Date(range[i].from).getTime()) {
+                            match = true;
+                        }
+                    }
+                    else if (range[i].to) {
+                        if (dayDate <= new Date(range[i].to).getTime()) {
+                            match = true;
+                        }
+                    }
+                } else if (dayDate === new Date(range[i]).getTime()) {
+                    match = true;
+                }
+            }
+        }
+        else if (range.from || range.to) {
+            if (range.from && range.to) {
+                if ((dayDate <= new Date(range.to).getTime()) && (dayDate >= new Date(range.from).getTime())) {
+                    match = true;
+                }
+            }
+            else if (range.from) {
+                if (dayDate >= new Date(range.from).getTime()) {
+                    match = true;
+                }
+            }
+            else if (range.to) {
+                if (dayDate <= new Date(range.to).getTime()) {
+                    match = true;
+                }
+            }
+        }
+        else if (typeof range === 'function') {
+            match = range(new Date(dayDate));
+        }
+        return match;
+    };
     // Calendar Methods
     p.daysInMonth = function (date) {
         var d = new Date(date);
@@ -362,21 +445,23 @@ var Calendar = function (params) {
             daysInMonth = p.daysInMonth(date),
             firstDayOfMonthIndex = new Date(date.getFullYear(), date.getMonth()).getDay();
         if (firstDayOfMonthIndex === 0) firstDayOfMonthIndex = 7;
-        
-        var dayDate, currentValues = [], i, j,
+
+        var dayDate, currentValues = [], i, j, k,
             rows = 6, cols = 7,
             monthHTML = '',
-            dayIndex = 0 + (p.params.firstDay - 1),    
+            dayIndex = 0 + (p.params.firstDay - 1),
             today = new Date().setHours(0,0,0,0),
             minDate = p.params.minDate ? new Date(p.params.minDate).getTime() : null,
-            maxDate = p.params.maxDate ? new Date(p.params.maxDate).getTime() : null;
+            maxDate = p.params.maxDate ? new Date(p.params.maxDate).getTime() : null,
+            disabled,
+            hasEvent;
 
         if (p.value && p.value.length) {
             for (i = 0; i < p.value.length; i++) {
                 currentValues.push(new Date(p.value[i]).setHours(0,0,0,0));
             }
         }
-            
+
         for (i = 1; i <= rows; i++) {
             var rowHTML = '';
             var row = i;
@@ -384,6 +469,7 @@ var Calendar = function (params) {
                 var col = j;
                 dayIndex ++;
                 var dayNumber = dayIndex - firstDayOfMonthIndex;
+                var weekDayIndex = (col - 1 + p.params.firstDay > 6) ? (col - 1 - 7 + p.params.firstDay) : (col - 1 + p.params.firstDay);
                 var addClass = '';
                 if (dayNumber < 0) {
                     dayNumber = daysInPrevMonth + dayNumber + 1;
@@ -398,21 +484,54 @@ var Calendar = function (params) {
                         dayDate = new Date(month + 1 > 11 ? year + 1 : year, month + 1 > 11 ? 0 : month + 1, dayNumber).getTime();
                     }
                     else {
-                        dayDate = new Date(year, month, dayNumber).getTime();    
+                        dayDate = new Date(year, month, dayNumber).getTime();
                     }
                 }
                 // Today
                 if (dayDate === today) addClass += ' picker-calendar-day-today';
                 // Selected
-                if (currentValues.indexOf(dayDate) >= 0) addClass += ' picker-calendar-day-selected';
+                if (p.params.rangePicker && currentValues.length === 2) {
+                    if (dayDate >= currentValues[0] && dayDate <= currentValues[1]) addClass += ' picker-calendar-day-selected';
+                }
+                else {
+                    if (currentValues.indexOf(dayDate) >= 0) addClass += ' picker-calendar-day-selected';
+                }
                 // Weekend
-                if (p.params.weekendDays.indexOf(col - 1) >= 0) {
+                if (p.params.weekendDays.indexOf(weekDayIndex) >= 0) {
                     addClass += ' picker-calendar-day-weekend';
                 }
-                // Disabled
-                if ((minDate && dayDate < minDate) || (maxDate && dayDate > maxDate)) {
-                    addClass += ' picker-calendar-day-disabled';   
+                // Has Events
+                hasEvent = false;
+                if (p.params.events) {
+                    if (p.dateInRange(dayDate, p.params.events)) {
+                        hasEvent = true;
+                    }
                 }
+                if (hasEvent) {
+                    addClass += ' picker-calendar-day-has-events';
+                }
+                // Custom Ranges
+                if (p.params.rangesClasses) {
+                    for (k = 0; k < p.params.rangesClasses.length; k++) {
+                        if (p.dateInRange(dayDate, p.params.rangesClasses[k].range)) {
+                            addClass += ' ' + p.params.rangesClasses[k].cssClass;
+                        }
+                    }
+                }
+                // Disabled
+                disabled = false;
+                if ((minDate && dayDate < minDate) || (maxDate && dayDate > maxDate)) {
+                    disabled = true;
+                }
+                if (p.params.disabled) {
+                    if (p.dateInRange(dayDate, p.params.disabled)) {
+                        disabled = true;
+                    }
+                }
+                if (disabled) {
+                    addClass += ' picker-calendar-day-disabled';
+                }
+
 
                 dayDate = new Date(dayDate);
                 var dayYear = dayDate.getFullYear();
@@ -428,7 +547,7 @@ var Calendar = function (params) {
     p.updateCurrentMonthYear = function (dir) {
         if (typeof dir === 'undefined') {
             p.currentMonth = parseInt(p.months.eq(1).attr('data-month'), 10);
-            p.currentYear = parseInt(p.months.eq(1).attr('data-year'), 10);   
+            p.currentYear = parseInt(p.months.eq(1).attr('data-year'), 10);
         }
         else {
             p.currentMonth = parseInt(p.months.eq(dir === 'next' ? (p.months.length - 1) : 0).attr('data-month'), 10);
@@ -436,7 +555,7 @@ var Calendar = function (params) {
         }
         p.container.find('.current-month-value').text(p.params.monthNames[p.currentMonth]);
         p.container.find('.current-year-value').text(p.currentYear);
-            
+
     };
     p.onMonthChangeStart = function (dir) {
         p.updateCurrentMonthYear(dir);
@@ -454,7 +573,7 @@ var Calendar = function (params) {
         p.animating = false;
         var nextMonthHTML, prevMonthHTML, newMonthHTML;
         p.wrapper.find('.picker-calendar-month:not(.picker-calendar-month-prev):not(.picker-calendar-month-current):not(.picker-calendar-month-next)').remove();
-        
+
         if (typeof dir === 'undefined') {
             dir = 'next';
             rebuildBoth = true;
@@ -630,7 +749,7 @@ var Calendar = function (params) {
         if (transitionEndCallback) {
            p.wrapper.transitionEnd(function () {
                 p.onMonthChangeEnd(dir, true);
-            }); 
+            });
         }
         if (!p.params.animate) {
             p.onMonthChangeEnd(dir);
@@ -642,14 +761,14 @@ var Calendar = function (params) {
     p.prevYear = function () {
         p.setYearMonth(p.currentYear - 1);
     };
-    
+
 
     // HTML Layout
     p.layout = function () {
         var pickerHTML = '';
         var pickerClass = '';
         var i;
-        
+
         var layoutDate = p.value && p.value.length ? p.value[0] : new Date().setHours(0,0,0,0);
         var prevMonthHTML = p.monthHTML(layoutDate, 'prev');
         var currentMonthHTML = p.monthHTML(layoutDate);
@@ -662,11 +781,13 @@ var Calendar = function (params) {
                 var weekDayIndex = (i + p.params.firstDay > 6) ? (i - 7 + p.params.firstDay) : (i + p.params.firstDay);
                 var dayName = p.params.dayNamesShort[weekDayIndex];
                 weekHeaderHTML += '<div class="picker-calendar-week-day ' + ((p.params.weekendDays.indexOf(weekDayIndex) >= 0) ? 'picker-calendar-week-day-weekend' : '') + '"> ' + dayName + '</div>';
-                
+
             }
             weekHeaderHTML = '<div class="picker-calendar-week-days">' + weekHeaderHTML + '</div>';
         }
-        pickerClass = 'picker-modal picker-calendar ' + (p.params.cssClass || '');
+        pickerClass = 'picker-modal picker-calendar' +
+                    (p.params.rangePicker ? ' picker-calendar-range' : '') +
+                    (p.params.cssClass ? ' ' + p.params.cssClass : '');
         var toolbarHTML = p.params.toolbar ? p.params.toolbarTemplate.replace(/{{closeText}}/g, p.params.toolbarCloseText) : '';
         if (p.params.toolbar) {
             toolbarHTML = p.params.toolbarTemplate
@@ -687,9 +808,9 @@ var Calendar = function (params) {
                     monthsHTML +
                 '</div>' +
             '</div>';
-            
-            
-        p.pickerHTML = pickerHTML;    
+
+
+        p.pickerHTML = pickerHTML;
     };
 
     // Input Events
@@ -727,7 +848,7 @@ var Calendar = function (params) {
             if (e.target !== p.input[0] && $(e.target).parents('.picker-modal').length === 0) p.close();
         }
         else {
-            if ($(e.target).parents('.picker-modal').length === 0) p.close();   
+            if ($(e.target).parents('.picker-modal').length === 0) p.close();
         }
     }
 
@@ -736,7 +857,7 @@ var Calendar = function (params) {
         if (p.input.length > 0) {
             if (p.params.inputReadOnly) p.input.prop('readOnly', true);
             if (!p.inline) {
-                p.input.on('click', openOnInput);    
+                p.input.on('click', openOnInput);
             }
             if (p.params.inputReadOnly) {
                 p.input.on('focus mousedown', function (e) {
@@ -744,10 +865,10 @@ var Calendar = function (params) {
                 });
             }
         }
-            
+
     }
-    
-    if (!p.inline) $('html').on('click', closeOnHTMLClick);
+
+    if (!p.inline && p.params.closeByOutsideClick) $('html').on('click', closeOnHTMLClick);
 
     // Open
     function onPickerClose() {
@@ -825,7 +946,7 @@ var Calendar = function (params) {
             if (p.input && p.input.length > 0 && app.params.material) {
                 p.input.trigger('focus');
             }
-            
+
         }
 
         // Set flag
@@ -863,6 +984,9 @@ var Calendar = function (params) {
 
     if (p.inline) {
         p.open();
+    }
+    else {
+        if (!p.initialized && p.params.value) p.setValue(p.params.value);
     }
 
     return p;

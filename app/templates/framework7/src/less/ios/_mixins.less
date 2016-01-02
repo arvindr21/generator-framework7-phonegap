@@ -32,6 +32,12 @@
     display: -webkit-flex;
     display: flex;
 }
+.flexbox-inline() {
+    display: -webkit-inline-box;
+    display: -ms-inline-flexbox;
+    display: -webkit-inline-flex;
+    display: inline-flex;
+}
 .flex-wrap(@fw) when (@fw = nowrap) {
     -webkit-box-lines: single;
     -moz-box-lines: single;
@@ -238,10 +244,27 @@
     background-image: url("data:image/svg+xml;charset=utf-8,@{url}");
 }
 
+// Backdrop Blur
+.backdrop-blur(@blur) {
+    -webkit-backdrop-filter: blur(@blur);
+    backdrop-filter: blur(@blur);
+}
+
 // Preserve3D
 .preserve3d() {
     -webkit-transform-style: preserve-3d;
     -moz-transform-style: preserve-3d;
     -ms-transform-style: preserve-3d;
     transform-style: preserve-3d;
+}
+
+// No Scrollbar
+.no-scrollbar() {
+    &::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        -webkit-appearance: none;
+        opacity: 0 !important;
+    }
 }

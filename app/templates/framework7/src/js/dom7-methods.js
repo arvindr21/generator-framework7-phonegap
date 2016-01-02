@@ -91,10 +91,16 @@ Dom7.prototype = {
         if (typeof value === 'undefined') {
             // Get value
             if (this[0]) {
-                var dataKey = this[0].getAttribute('data-' + key);
-                if (dataKey) return dataKey;
-                else if (this[0].dom7ElementDataStorage && (key in this[0].dom7ElementDataStorage)) return this[0].dom7ElementDataStorage[key];
-                else return undefined;
+                if (this[0].dom7ElementDataStorage && (key in this[0].dom7ElementDataStorage)) {
+                    return this[0].dom7ElementDataStorage[key];
+                }
+                else {
+                    var dataKey = this[0].getAttribute('data-' + key);    
+                    if (dataKey) {
+                        return dataKey;
+                    }
+                    else return undefined;
+                }
             }
             else return undefined;
         }
@@ -239,28 +245,31 @@ Dom7.prototype = {
     once: function (eventName, targetSelector, listener, capture) {
         var dom = this;
         if (typeof targetSelector === 'function') {
-            targetSelector = false;
             listener = arguments[1];
             capture = arguments[2];
+            targetSelector = false;
         }
         function proxy(e) {
-            listener(e);
+            listener.call(e.target, e);
             dom.off(eventName, targetSelector, proxy, capture);
         }
-        dom.on(eventName, targetSelector, proxy, capture);
+        return dom.on(eventName, targetSelector, proxy, capture);
     },
     trigger: function (eventName, eventData) {
-        for (var i = 0; i < this.length; i++) {
-            var evt;
-            try {
-                evt = new CustomEvent(eventName, {detail: eventData, bubbles: true, cancelable: true});
+        var events = eventName.split(' ');
+        for (var i = 0; i < events.length; i++) {
+            for (var j = 0; j < this.length; j++) {
+                var evt;
+                try {
+                    evt = new CustomEvent(events[i], {detail: eventData, bubbles: true, cancelable: true});
+                }
+                catch (e) {
+                    evt = document.createEvent('Event');
+                    evt.initEvent(events[i], true, true);
+                    evt.detail = eventData;
+                }
+                this[j].dispatchEvent(evt);
             }
-            catch (e) {
-                evt = document.createEvent('Event');
-                evt.initEvent(eventName, true, true);
-                evt.detail = eventData;
-            }
-            this[i].dispatchEvent(evt);
         }
         return this;
     },
@@ -530,6 +539,10 @@ Dom7.prototype = {
         }
         return this;
     },
+    appendTo: function (parent) {
+        $(parent).append(this);
+        return this;
+    },
     prepend: function (newChild) {
         var i, j;
         for (i = 0; i < this.length; i++) {
@@ -550,6 +563,10 @@ Dom7.prototype = {
                 this[i].insertBefore(newChild, this[i].childNodes[0]);
             }
         }
+        return this;
+    },
+    prependTo: function (parent) {
+        $(parent).prepend(this);
         return this;
     },
     insertBefore: function (selector) {
@@ -635,11 +652,13 @@ Dom7.prototype = {
     parent: function (selector) {
         var parents = [];
         for (var i = 0; i < this.length; i++) {
-            if (selector) {
-                if ($(this[i].parentNode).is(selector)) parents.push(this[i].parentNode);
-            }
-            else {
-                parents.push(this[i].parentNode);
+            if (this[i].parentNode !== null) {
+                if (selector) {
+                    if ($(this[i].parentNode).is(selector)) parents.push(this[i].parentNode);
+                }
+                else {
+                   parents.push(this[i].parentNode);
+                }
             }
         }
         return $($.unique(parents));
@@ -714,9 +733,9 @@ Dom7.prototype = {
     var shortcuts = ('click blur focus focusin focusout keyup keydown keypress submit change mousedown mousemove mouseup mouseenter mouseleave mouseout mouseover touchstart touchend touchmove resize scroll').split(' ');
     var notTrigger = ('resize scroll').split(' ');
     function createMethod(name) {
-        Dom7.prototype[name] = function (handler) {
+        Dom7.prototype[name] = function (targetSelector, listener, capture) {
             var i;
-            if (typeof handler === 'undefined') {
+            if (typeof targetSelector === 'undefined') {
                 for (i = 0; i < this.length; i++) {
                     if (notTrigger.indexOf(name) < 0) {
                         if (name in this[i]) this[i][name]();
@@ -728,7 +747,7 @@ Dom7.prototype = {
                 return this;
             }
             else {
-                return this.on(name, handler);
+                return this.on(name, targetSelector, listener, capture);
             }
         };
     }

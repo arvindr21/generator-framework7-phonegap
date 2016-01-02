@@ -1,5 +1,5 @@
 (function(){
-    'use strict';    
+    'use strict';
     var gulp = require('gulp'),
         connect = require('gulp-connect'),
         open = require('gulp-open'),
@@ -73,6 +73,7 @@
                 'src/js/pages.js',
                 'src/js/router.js',
                 'src/js/modals.js',
+                'src/js/progressbar.js',
                 'src/js/panels.js',
                 'src/js/lazy-load.js',
                 'src/js/material-preloader.js',
@@ -97,6 +98,7 @@
                 'src/js/push-state.js',
                 'src/js/swiper-init.js',
                 'src/js/photo-browser.js',
+                'src/js/autocomplete.js',
                 'src/js/picker.js',
                 'src/js/calendar.js',
                 'src/js/notifications.js',
@@ -208,28 +210,39 @@
         
     });
     gulp.task('styles-ios', function (cb) {
-        gulp.src([paths.source.styles.ios + 'framework7.ios.less', paths.source.styles.ios + 'framework7.ios.rtl.less', paths.source.styles.ios + 'framework7.ios.colors.less'])
-            .pipe(less({
-                paths: [ path.join(__dirname, 'less', 'includes') ]
-            }))
-            .pipe(header(f7.banner, { pkg : f7.pkg, date: f7.date, theme: 'iOS Theme' }))
-            .pipe(gulp.dest(paths.build.styles))
-            .pipe(connect.reload())
-            .on('end', function () {
-                cb();
-            });
+        var cbs = 0;
+        ['framework7.ios.less', 'framework7.ios.rtl.less', 'framework7.ios.colors.less'].forEach(function(lessFilePath, b){
+            lessFilePath = paths.source.styles.ios + lessFilePath;
+            gulp.src([lessFilePath])
+                .pipe(less({
+                    paths: [ path.join(__dirname, 'less', 'includes') ]
+                }))
+                .pipe(header(f7.banner, { pkg : f7.pkg, date: f7.date, theme: 'iOS Theme' }))
+                .pipe(gulp.dest(paths.build.styles))
+                .pipe(connect.reload())
+                .on('end', function () {
+                    cbs ++;
+                    if (cbs === 3) cb();
+                });
+        });
     });
     gulp.task('styles-material', function (cb) {
-        gulp.src([paths.source.styles.material + 'framework7.material.less', paths.source.styles.material + 'framework7.material.rtl.less', paths.source.styles.material + 'framework7.material.colors.less'])
-            .pipe(less({
-                paths: [ path.join(__dirname, 'less', 'includes') ]
-            }))
-            .pipe(header(f7.banner, { pkg : f7.pkg, date: f7.date, theme: 'Google Material Theme' }))
-            .pipe(gulp.dest(paths.build.styles))
-            .pipe(connect.reload())
-            .on('end', function () {
-                cb();
-            });
+        var cbs = 0;
+        ['framework7.material.less', 'framework7.material.rtl.less', 'framework7.material.colors.less'].forEach(function(lessFilePath, b){
+            lessFilePath = paths.source.styles.material + lessFilePath;
+            gulp.src([lessFilePath])
+                .pipe(less({
+                    paths: [ path.join(__dirname, 'less', 'includes') ]
+                }))
+                .pipe(header(f7.banner, { pkg : f7.pkg, date: f7.date, theme: 'Google Material Theme' }))
+                .pipe(gulp.dest(paths.build.styles))
+                .pipe(connect.reload())
+                .on('end', function () {
+                    cbs ++;
+                    if (cbs === 3) cb();
+                });
+        });
+            
     });
 
     // F7 Demo App
@@ -238,7 +251,8 @@
             .pipe(jade({
                 pretty: true,
                 locals: {
-                    stylesheetFilename: 'framework7',
+                    stylesheetFilename: 'framework7.ios',
+                    stylesheetColorsFilename: 'framework7.ios.colors',
                     scriptFilename: 'framework7',
                 }
             }))
@@ -343,7 +357,8 @@
                     .pipe(jade({
                         pretty: true,
                         locals: {
-                            stylesheetFilename: 'framework7.min',
+                            stylesheetFilename: 'framework7.ios.min',
+                            stylesheetColorsFilename: 'framework7.ios.colors.min',
                             scriptFilename: 'framework7.min',
                         }
                     }))
