@@ -2,7 +2,7 @@
 
 [![NPM](https://nodei.co/npm/generator-framework7-phonegap.png?downloads=true)](https://nodei.co/npm/generator-framework7-phonegap/)
 
-> A Yeoman Generator to Scaffold an [Framework7](http://framework7.io/) [PhongeGap/Cordova](http://cordova.apache.org/) app
+> A Yeoman Generator to Scaffold an [Framework7 v2.2.1](http://framework7.io/) [PhongeGap/Cordova v7.x](http://cordova.apache.org/) app
 
 ## Getting Started
 
