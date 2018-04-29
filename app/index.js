@@ -7,61 +7,63 @@ var chalk = require('chalk');
 
 
 var Framework7PhonegapGenerator = yeoman.generators.Base.extend({
-    init: function() {
-        this.pkg = require('../package.json');
+  init: function() {
+    this.pkg = require('../package.json');
 
-        this.on('end', function() {
-            if (!this.options['skip-install']) {
-                this.installDependencies();
-            }
+    this.on('end', function() {
+      if (!this.options['skip-install']) {
+        this.installDependencies({
+          bower: false
         });
-    },
+      }
+    });
+  },
 
-    askFor: function() {
-        var done = this.async();
+  askFor: function() {
+    var done = this.async();
 
-        // Have Yeoman greet the user.
-        this.log(yosay('Welcome to the marvelous Framework7Phonegap generator!'));
+    // Have Yeoman greet the user.
+    this.log(yosay('Welcome to the marvelous Framework7Phonegap generator!'));
 
-        var prompts = [{
-            type: 'input',
-            name: 'appname',
-            message: 'What is the name of your app?',
-            default: path.basename(process.cwd())
-        }];
+    var prompts = [{
+      type: 'input',
+      name: 'appname',
+      message: 'What is the name of your app?',
+      default: path.basename(process.cwd())
+    }];
 
-        this.prompt(prompts, function(props) {
-            this.appname = props.appname;
+    this.prompt(prompts, function(props) {
+      this.appname = props.appname;
 
-            done();
-        }.bind(this));
-    },
+      done();
+    }.bind(this));
+  },
 
-    app: function() {
-        this.mkdir('hooks');
-        this.mkdir('merges');
-        this.mkdir('platforms');
-        this.mkdir('plugins');
-        this.mkdir('www');
+  app: function() {
 
-        this.copy('phonegap/hooks/README.md', 'hooks/README.md');
-        this.directory('phonegap/www/res', 'www/res');
-        this.copy('phonegap/www/icon.png', 'www/icon.png');
-        this.copy('phonegap/www/_config.xml', 'www/config.xml');
+    this.mkdir('framework7');
+    this.directory('framework7/', 'framework7/');
 
-        this.copy('_package.json', 'package.json');
-        this.copy('_bower.json', 'bower.json');
+    this.mkdir('hooks');
+    this.directory('hooks/', 'hooks/');
 
-        this.mkdir('framework7');
-        this.directory('framework7/', 'framework7/');
-    },
+    this.mkdir('plugins');
+    this.directory('plugins/', 'plugins/');
 
-    projectfiles: function() {
-        this.copy('Gruntfile.js', 'Gruntfile.js');
-        this.copy('editorconfig', '.editorconfig');
-        this.copy('jshintrc', '.jshintrc');
-        this.copy('jshintrc2', 'framework7/.jshintrc');
-    }
+    this.mkdir('res');
+    this.directory('res/', 'res/');
+
+    this.mkdir('www');
+    this.directory('www/', 'www/');
+
+    this.copy('.npmignore', '.npmignore');
+    this.copy('_package.json', 'package.json');
+    this.copy('README.md', 'README.md');
+  },
+
+  projectfiles: function() {
+    
+  }
 });
 
 module.exports = Framework7PhonegapGenerator;
